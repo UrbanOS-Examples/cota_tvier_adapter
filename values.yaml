@@ -1,0 +1,27 @@
+replicaCount: 1
+
+image:
+  repository: 199837183662.dkr.ecr.us-east-2.amazonaws.com/scos/cota-tvier-adapter
+  pullPolicy: Always
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

@@ -21,7 +21,7 @@ app = FastAPI()
 search = re.compile(r"_obu_(.*?)\.")
 
 @app.get("/api/v1/tvier")
-async def tvier(url: str):
+def tvier(url: str):
     """
     Downloads a gzip archive from the provided url and extracts data from the contained csv files
     """

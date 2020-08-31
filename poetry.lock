@@ -116,6 +116,23 @@ test = ["pytest (5.4.3)", "pytest-cov (2.10.0)", "pytest-asyncio (>=0.14.0,<0.15
 
 [[package]]
 category = "main"
+description = "WSGI HTTP Server for UNIX"
+name = "gunicorn"
+optional = false
+python-versions = ">=3.4"
+version = "20.0.4"
+
+[package.dependencies]
+setuptools = ">=3.0"
+
+[package.extras]
+eventlet = ["eventlet (>=0.9.7)"]
+gevent = ["gevent (>=0.13)"]
+setproctitle = ["setproctitle"]
+tornado = ["tornado (>=0.2)"]
+
+[[package]]
+category = "main"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
 name = "h11"
 optional = false
@@ -446,7 +463,7 @@ python-versions = "*"
 version = "0.2.1"
 
 [metadata]
-content-hash = "854a77b3389335fb009d55a69aff746d402be86f49b6b26cfb5c935fa0903878"
+content-hash = "198e481a390bc79e726ba0368f3f6e950745a7d195dfe1667144d6f85e4ffef0"
 lock-version = "1.0"
 python-versions = "^3.8"
 
@@ -490,6 +507,10 @@ colorama = [
 fastapi = [
     {file = "fastapi-0.61.0-py3-none-any.whl", hash = "sha256:29c12dd0d4ac825d13c2db4762d2863281c18085ae521825829182e977fd25ac"},
     {file = "fastapi-0.61.0.tar.gz", hash = "sha256:d0b3f629f8d165a21ee082bf31e1697c391c1cdf940304408614b5b7c59d1fb3"},
+]
+gunicorn = [
+    {file = "gunicorn-20.0.4-py2.py3-none-any.whl", hash = "sha256:cd4a810dd51bf497552cf3f863b575dabd73d6ad6a91075b65936b151cbf4f9c"},
+    {file = "gunicorn-20.0.4.tar.gz", hash = "sha256:1904bb2b8a43658807108d59c3f3d56c2b6121a701161de0ddf9ad140073c626"},
 ]
 h11 = [
     {file = "h11-0.9.0-py2.py3-none-any.whl", hash = "sha256:4bc6d6a1238b7615b266ada57e0618568066f57dd6fa967d1290ec9309b2f2f1"},

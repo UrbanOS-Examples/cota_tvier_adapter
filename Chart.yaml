@@ -1,0 +1,4 @@
+apiVersion: v1
+description: Adapter API to expose cota tvier data as scos-standard cve data
+name: cota-tvier-adapter
+version: 0.1.0
