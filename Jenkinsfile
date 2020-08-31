@@ -5,6 +5,7 @@ library(
                           credentialsId: 'jenkins-github-user'])
 )
 
+def applicationName = "cota-tvier-adapter"
 def image
 def doStageIf = scos.&doStageIf
 def doStageIfRelease = doStageIf.curry(scos.changeset.isRelease)
