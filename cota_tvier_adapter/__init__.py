@@ -29,6 +29,9 @@ def tvier(url: str):
     archive_bytes = io.BytesIO(response.content)
     return _process_tar_archive(archive_bytes)
 
+@app.get("/api/v1/healthcheck")
+def healthcheck():
+    return "Ok"
 
 def _process_tar_archive(tar_bytes):
     with tarfile.open(fileobj=tar_bytes) as tar_file:
