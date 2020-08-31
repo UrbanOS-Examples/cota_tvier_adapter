@@ -17,13 +17,15 @@ node('infrastructure') {
         scos.doCheckoutStage()
 
         doStageUnlessRelease('Build') {
-            image = docker.build("scos/cota-tvier-adapter:${env.GIT_COMMIT_HASH}")
+            scos.withDockerRegistry {
+                image = docker.build("scos/cota-tvier-adapter:${env.GIT_COMMIT_HASH}")
+                image.push()
+            }
             deployTo(applicationName, 'dev', "--set image.tag=${env.GIT_COMMIT_HASH} --recreate-pods")
         }
 
         doStageIfPromoted('Deploy Latest') {
             scos.withDockerRegistry {
-                image.push()
                 image.push('latest')
             }
             deployTo(applicationName, 'staging', "--set image.tag=latest")
