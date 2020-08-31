@@ -1,4 +1,5 @@
 *.pyc
 .vscode/*
 .pytest_cache/*
-soap_to_rest.egg-info/*
+cota_tvier_adapter.egg-info/*
+tests/__pycache__/*

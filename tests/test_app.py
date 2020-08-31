@@ -17,7 +17,7 @@ def fake_content_server_url():
 def test_high_level(fake_content_server_url):
     fixture_url = fake_content_server_url + "/cota_obu_data"
     fixture_date = "2020_07_22"
-    response = client.get(f"/api/v1/tvier?url={fixture_url}_{fixture_date}.gz")
+    response = client.get(f"/api/v1/tvier?url={fixture_url}_{fixture_date}.tgz")
 
     assert response.status_code == 200
     assert {
