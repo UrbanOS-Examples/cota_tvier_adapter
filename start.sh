@@ -7,6 +7,5 @@ gunicorn \
         --workers 1 \
         --bind unix:/tmp/uvicorn.sock \
         --error-logfile - \
-        --access-logfile - \
         -k uvicorn.workers.UvicornWorker \
         cota_tvier_adapter:app
