@@ -14,6 +14,9 @@ def convert_row(rows, row):
     """
     event_type = row["EventType"]
 
+    if event_type == "EventType":
+        return rows
+
     obj = {}
     obj["timestamp"] = row["Timestamp"]
     if event_type in event_map.keys():
@@ -30,9 +33,12 @@ def convert_row(rows, row):
 
 def _convert_known_event(event):
     event_data = _convert_body(event["EventData"])
-    message_body = list(event_data["message"]["MessageFrame"]["value"].values())[0]
-    event_type = event_map[event["EventType"]]
-    return (message_body, event_type)
+    if "message" in event_data:
+        message_body = list(event_data["message"]["MessageFrame"]["value"].values())[0]
+        event_type = event_map[event["EventType"]]
+        return (message_body, event_type)
+    else:
+        return (event_data, event["EventType"])
 
 
 def _convert_unknown_event(event):
@@ -42,4 +48,10 @@ def _convert_unknown_event(event):
 
 
 def _convert_body(xml):
-    return parker.data(fromstring(xml))
+    data = {}
+    try:
+        data = parker.data(fromstring(xml))
+    except:
+        data = {"malformed_xml": xml}
+
+    return data
