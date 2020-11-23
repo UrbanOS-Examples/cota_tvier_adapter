@@ -5,6 +5,7 @@ gunicorn \
         --group $(id -g www-data) \
         --umask "0022" \
         --workers 1 \
+        --timeout 600 \
         --bind unix:/tmp/uvicorn.sock \
         --error-logfile - \
         -k uvicorn.workers.UvicornWorker \
