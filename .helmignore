@@ -1,0 +1,11 @@
+tests/
+
+*.gz
+
+pytest_cache/
+
+vscode/
+
+cota_tvier_adapter.egg-info/
+
+.git/
