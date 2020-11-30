@@ -8,6 +8,7 @@ import json
 import re
 import tarfile
 import zipfile
+import zlib
 from functools import reduce
 
 import requests
@@ -64,29 +65,38 @@ def _extract_gzips(rows, tar_info, tar_file):
 def _extract_gzip_from_zip(rows, zip_info, zip_file):
     source_device = re.search(search, zip_info.filename).group(1)
     gzip_file = zip_file.open(zip_info)
-    extracted_records = _process_gzip(gzip_file, source_device)
-    return rows + extracted_records
+
+    try:
+        unzipped = zlib.decompress(gzip_file.read(), wbits=16).decode("utf-8").splitlines()
+        extracted_records = _process_csv_file(unzipped, source_device)
+        return rows + extracted_records
+    except:
+        print(f"Could not process file: {zip_info.filename}")
+        return rows
 
 
 def _process_gzip(gzip_file, source_device):
     with gzip.open(gzip_file, mode="rt") as csv_file:
-        data = csv.DictReader(
-            csv_file,
-            fieldnames=[
-                "Timestamp",
-                "TimeUTC",
-                "AccOnSession",
-                "EventType",
-                "Latitude",
-                "Longitude",
-                "Intersection",
-                "EventData",
-            ],
-        )
-        converted_data = reduce(convert_row, data, [])
-        return list(
-            map(lambda row: _add_source_device(row, source_device), converted_data)
-        )
+        _process_csv_file(csv_file, source_device)
+
+def _process_csv_file(csv_file, source_device):
+    data = csv.DictReader(
+        csv_file,
+        fieldnames=[
+            "Timestamp",
+            "TimeUTC",
+            "AccOnSession",
+            "EventType",
+            "Latitude",
+            "Longitude",
+            "Intersection",
+            "EventData",
+        ],
+    )
+    converted_data = reduce(convert_row, data, [])
+    return list(
+        map(lambda row: _add_source_device(row, source_device), converted_data)
+    )
 
 
 def _add_source_device(row, source_device):
