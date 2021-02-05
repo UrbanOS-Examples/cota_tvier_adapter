@@ -3,3 +3,5 @@
 .pytest_cache/*
 cota_tvier_adapter.egg-info/*
 tests/__pycache__/*
+*.json
+.DS_Store

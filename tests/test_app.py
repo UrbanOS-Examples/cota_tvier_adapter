@@ -20,6 +20,7 @@ def test_high_level(fake_content_server_url):
     response = client.get(f"/api/v1/tvier?url={fixture_url}_{fixture_date}.gz")
 
     assert response.status_code == 200
+    print(response.text[0:100])
     assert {
         "timestamp": "11/14/2020 22:16:34.009",
         "messageBody": {

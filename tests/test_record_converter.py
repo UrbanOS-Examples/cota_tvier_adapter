@@ -7,7 +7,7 @@ def test_basic_safety_message():
     message_type = "sentBSM"
     row = {"EventType": message_type, "EventData": _bsm(), "Timestamp": timestamp}
 
-    [row] = convert_row([], row)
+    row = convert_row(row)
 
     assert row["messageBody"]["coreData"]
     assert row["timestamp"] == timestamp
@@ -23,7 +23,7 @@ def test_other_message():
         "Timestamp": timestamp,
     }
 
-    [row] = convert_row([], row)
+    row = convert_row(row)
 
     assert row["messageBody"]["driverWarn"]
     assert row["timestamp"] == timestamp

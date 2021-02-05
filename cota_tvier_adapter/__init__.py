@@ -6,15 +6,16 @@ import gzip
 import io
 import json
 import re
-import tarfile
 import zipfile
 import zlib
-from functools import reduce
-
+import pickle
+import logging
 import requests
 import uvicorn
-from fastapi import FastAPI
 
+from retry import retry
+from fastapi import FastAPI
+from starlette.responses import StreamingResponse
 from cota_tvier_adapter.record_converter import convert_row
 
 app = FastAPI()
@@ -29,50 +30,41 @@ def tvier(url: str):
     """
     response = requests.get(url)
     archive_bytes = io.BytesIO(response.content)
-    return _process_zip_archive(archive_bytes)
+    record_generator = _stream_records_from_archive(archive_bytes)
+    return StreamingResponse(record_generator, media_type='application/json')
 
 
 @app.get("/api/v1/healthcheck")
 def healthcheck():
     return "Ok"
 
+def _stream_records_from_archive(archive_bytes):
+    yield "["
+    for rows in _process_zip_archive(archive_bytes):
+        for row in rows:
+            yield json.dumps(row) + ','
+    yield '[]]' # Required due to trailing commas. Will be dead-lettered.
 
-def _process_tar_archive(tar_bytes):
-    with tarfile.open(fileobj=tar_bytes) as tar_file:
-        members = tar_file.getmembers()
-        return reduce(
-            lambda rows, tar_info: _extract_gzips(rows, tar_info, tar_file), members, []
-        )
-
-
+@retry(tries=3, delay=10, backoff=10)
 def _process_zip_archive(zip_bytes):
     with zipfile.ZipFile(zip_bytes) as zip_file:
         members = zip_file.infolist()
-        return reduce(
-            lambda rows, zip_info: _extract_gzip_from_zip(rows, zip_info, zip_file),
-            members,
-            [],
-        )
+        for member in members:
+            yield _extract_gzip_from_zip(member, zip_file)
 
 
-def _extract_gzips(rows, tar_info, tar_file):
-    source_device = re.search(search, tar_info.name).group(1)
-    gzip_file = tar_file.extractfile(tar_info)
-    extracted_records = _process_gzip(gzip_file, source_device)
-    return rows + extracted_records
-
-
-def _extract_gzip_from_zip(rows, zip_info, zip_file):
+def _extract_gzip_from_zip(zip_info, zip_file):
+    logging.info(f"Decompressing {zip_info.filename}")
     source_device = re.search(search, zip_info.filename).group(1)
     gzip_file = zip_file.open(zip_info)
 
     try:
         unzipped = zlib.decompress(gzip_file.read(), wbits=16).decode("utf-8").splitlines()
         extracted_records = _process_csv_file(unzipped, source_device)
-        return rows + extracted_records
+        return extracted_records
     except:
-        print(f"Could not process file: {zip_info.filename}")
-        return rows
+        logging.warning(f"Could not process file: {zip_info.filename}")
+        return None
 
 
 def _process_gzip(gzip_file, source_device):
@@ -93,10 +85,11 @@ def _process_csv_file(csv_file, source_device):
             "EventData",
         ],
     )
-    converted_data = reduce(convert_row, data, [])
-    return list(
-        map(lambda row: _add_source_device(row, source_device), converted_data)
-    )
+
+    for record in data:
+        converted_record = convert_row(record)
+        if converted_record != None: 
+            yield _add_source_device(converted_record, source_device)
 
 
 def _add_source_device(row, source_device):
