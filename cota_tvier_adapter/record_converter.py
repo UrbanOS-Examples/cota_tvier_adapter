@@ -8,14 +8,14 @@ from xmljson import parker
 event_map = {"receivedBSM": "BSM", "sentBSM": "BSM"}
 
 
-def convert_row(rows, row):
+def convert_row(row):
     """
     Maps the TVIER format to SCOS
     """
     event_type = row["EventType"]
 
     if event_type == "EventType":
-        return rows
+        return None
 
     obj = {}
     obj["timestamp"] = row["Timestamp"]
@@ -27,8 +27,7 @@ def convert_row(rows, row):
     obj["messageBody"] = message_body
     obj["messageType"] = event_type
 
-    rows.append(obj)
-    return rows
+    return obj
 
 
 def _convert_known_event(event):
