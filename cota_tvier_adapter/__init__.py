@@ -39,10 +39,10 @@ def healthcheck():
     return "Ok"
 
 def _stream_records_from_archive(archive_bytes):
-    yield "["
+    yield "[\n"
     for rows in _process_zip_archive(archive_bytes):
         for row in rows:
-            yield json.dumps(row) + ','
+            yield json.dumps(row) + ',\n'
     yield '[]]' # Required due to trailing commas. Will be dead-lettered.
 
 @retry(tries=3, delay=10, backoff=10)
