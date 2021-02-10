@@ -11,7 +11,7 @@ def test_basic_safety_message():
 
     assert row["messageBody"]["coreData"]
     assert row["timestamp"] == timestamp
-    assert row["messageType"] == "BSM"
+    assert row["messageType"] == "sentBSM"
 
 
 def test_other_message():

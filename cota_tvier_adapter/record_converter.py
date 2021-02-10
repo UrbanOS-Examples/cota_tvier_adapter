@@ -35,7 +35,7 @@ def _convert_known_event(event):
     if "message" in event_data:
         message_body = list(event_data["message"]["MessageFrame"]["value"].values())[0]
         event_type = event_map[event["EventType"]]
-        return (message_body, event_type)
+        return (message_body, event["EventType"])
     else:
         return (event_data, event["EventType"])
 

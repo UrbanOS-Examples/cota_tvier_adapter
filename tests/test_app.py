@@ -16,36 +16,60 @@ def fake_content_server_url():
 
 def test_high_level(fake_content_server_url):
     fixture_url = fake_content_server_url + "/cota_obu_data"
-    fixture_date = "2020_11_15"
-    response = client.get(f"/api/v1/tvier?url={fixture_url}_{fixture_date}.gz")
+    fixture_date = "2021_01_01"
+    response = client.get(f"/api/v1/tvier?url={fixture_url}_{fixture_date}.gz&hour=00")
 
     assert response.status_code == 200
     print(response.text[0:100])
     assert {
-        "timestamp": "11/14/2020 22:16:34.009",
+        "timestamp": "01/01/2021 03:06:59.190",
         "messageBody": {
             "coreData": {
-                "msgCnt": 11,
-                "id": "91F8EB3E",
-                "secMark": 33950,
-                "lat": 399057058,
-                "long": -828245967,
-                "elev": 2018,
-                "accuracy": {"semiMajor": 8, "semiMinor": 7, "orientation": 31437},
-                "transmission": {"unavailable": None},
-                "speed": 90,
-                "heading": 22377,
+                "msgCnt": 66,
+                "id": "6A9D5153",
+                "secMark": 59150,
+                "lat": 399650051,
+                "long": -830397670,
+                "elev": 1847,
+                "accuracy": {
+                    "semiMajor": 9,
+                    "semiMinor": 8,
+                    "orientation": 19195
+                },
+                "transmission": {
+                    "unavailable": None
+                },
+                "speed": 0,
+                "heading": 21987,
                 "angle": 127,
-                "accelSet": {"long": 97, "lat": 69, "vert": 49, "yaw": 531},
+                "accelSet": {
+                    "long": -6,
+                    "lat": 5,
+                    "vert": 49,
+                    "yaw": 0
+                },
                 "brakes": {
                     "wheelBrakes": 10000,
-                    "traction": {"unavailable": None},
-                    "abs": {"unavailable": None},
-                    "scs": {"unavailable": None},
-                    "brakeBoost": {"off": None},
-                    "auxBrakes": {"unavailable": None},
+                    "traction": {
+                        "unavailable": None
+                    },
+                    "abs": {
+                        "unavailable": None
+                    },
+                    "scs": {
+                        "unavailable": None
+                    },
+                    "brakeBoost": {
+                        "off": None
+                    },
+                    "auxBrakes": {
+                        "unavailable": None
+                    }
                 },
-                "size": {"width": 310, "length": 1240},
+                "size": {
+                    "width": 290,
+                    "length": 1240
+                }
             },
             "partII": {
                 "SEQUENCE": {
@@ -56,75 +80,74 @@ def test_high_level(fake_content_server_url):
                                 "crumbData": {
                                     "PathHistoryPoint": [
                                         {
-                                            "latOffset": 570,
-                                            "lonOffset": -9634,
-                                            "elevationOffset": -3,
-                                            "timeOffset": 8370,
-                                        },
-                                        {
-                                            "latOffset": 587,
-                                            "lonOffset": -11188,
+                                            "latOffset": 366,
+                                            "lonOffset": -3451,
                                             "elevationOffset": -4,
-                                            "timeOffset": 8835,
+                                            "timeOffset": 2950
                                         },
                                         {
-                                            "latOffset": 90,
-                                            "lonOffset": -11831,
-                                            "elevationOffset": -3,
-                                            "timeOffset": 9205,
-                                        },
-                                        {
-                                            "latOffset": -4072,
-                                            "lonOffset": -12234,
-                                            "elevationOffset": 2,
-                                            "timeOffset": 10705,
-                                        },
-                                        {
-                                            "latOffset": -8491,
-                                            "lonOffset": -12820,
-                                            "elevationOffset": 0,
-                                            "timeOffset": 11655,
-                                        },
-                                        {
-                                            "latOffset": -9859,
-                                            "lonOffset": -13344,
+                                            "latOffset": 890,
+                                            "lonOffset": -4559,
                                             "elevationOffset": -4,
-                                            "timeOffset": 12075,
+                                            "timeOffset": 3235
                                         },
                                         {
-                                            "latOffset": -10427,
-                                            "lonOffset": -14296,
-                                            "elevationOffset": -3,
-                                            "timeOffset": 12405,
+                                            "latOffset": 1711,
+                                            "lonOffset": -5049,
+                                            "elevationOffset": -4,
+                                            "timeOffset": 3520
                                         },
                                         {
-                                            "latOffset": -10541,
-                                            "lonOffset": -17546,
-                                            "elevationOffset": -8,
-                                            "timeOffset": 13365,
+                                            "latOffset": 9167,
+                                            "lonOffset": -4372,
+                                            "elevationOffset": 18,
+                                            "timeOffset": 7690
                                         },
                                         {
-                                            "latOffset": -11016,
-                                            "lonOffset": -19052,
-                                            "elevationOffset": -7,
-                                            "timeOffset": 13755,
+                                            "latOffset": 11331,
+                                            "lonOffset": -3892,
+                                            "elevationOffset": 24,
+                                            "timeOffset": 8190
                                         },
                                         {
-                                            "latOffset": -12383,
-                                            "lonOffset": -20414,
-                                            "elevationOffset": -7,
-                                            "timeOffset": 14305,
+                                            "latOffset": 12236,
+                                            "lonOffset": -3062,
+                                            "elevationOffset": 27,
+                                            "timeOffset": 8410
                                         },
+                                        {
+                                            "latOffset": 12748,
+                                            "lonOffset": -1723,
+                                            "elevationOffset": 27,
+                                            "timeOffset": 8620
+                                        },
+                                        {
+                                            "latOffset": 12619,
+                                            "lonOffset": 4264,
+                                            "elevationOffset": 23,
+                                            "timeOffset": 9405
+                                        }
                                     ]
                                 }
                             },
-                            "pathPrediction": {"radiusOfCurve": 357, "confidence": 100},
-                            "lights": 100000,
+                            "pathPrediction": {
+                                "radiusOfCurve": 32767,
+                                "confidence": 200
+                            }
                         }
-                    },
+                    }
                 }
-            },
+            }
         },
-        "messageType": "BSM",
-        "sourceDevice": "2520203122717008045",
+        "messageType": "sentBSM",
+        "sourceDevice": "2520203122717008050"
     } in response.json()
+
+
+def test_hour_not_found(fake_content_server_url):
+    fixture_url = fake_content_server_url + "/cota_obu_data"
+    fixture_date = "2021_01_01"
+    response = client.get(f"/api/v1/tvier?url={fixture_url}_{fixture_date}.gz&hour=66")
+
+    assert response.status_code == 200
+    assert response.json() == [[]]
