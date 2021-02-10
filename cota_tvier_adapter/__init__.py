@@ -24,13 +24,13 @@ search = re.compile(r"_obu_(.*?)\.")
 
 
 @app.get("/api/v1/tvier")
-def tvier(url: str):
+def tvier(url: str, hour: str):
     """
     Downloads a gzip archive from the provided url and extracts data from the contained csv files
     """
     response = requests.get(url)
     archive_bytes = io.BytesIO(response.content)
-    record_generator = _stream_records_from_archive(archive_bytes)
+    record_generator = _stream_records_from_archive(archive_bytes, hour)
     return StreamingResponse(record_generator, media_type='application/json')
 
 
@@ -38,19 +38,21 @@ def tvier(url: str):
 def healthcheck():
     return "Ok"
 
-def _stream_records_from_archive(archive_bytes):
+def _stream_records_from_archive(archive_bytes, hour):
     yield "[\n"
-    for rows in _process_zip_archive(archive_bytes):
+    for rows in _process_zip_archive(archive_bytes, hour):
         for row in rows:
             yield json.dumps(row) + ',\n'
     yield '[]]' # Required due to trailing commas. Will be dead-lettered.
 
 @retry(tries=3, delay=10, backoff=10)
-def _process_zip_archive(zip_bytes):
+def _process_zip_archive(zip_bytes, hour):
     with zipfile.ZipFile(zip_bytes) as zip_file:
         members = zip_file.infolist()
         for member in members:
-            yield _extract_gzip_from_zip(member, zip_file)
+            if member.filename.split('_')[2] == hour:
+                print(f"Extracting matching file: {member.filename}")
+                yield _extract_gzip_from_zip(member, zip_file)
 
 
 def _extract_gzip_from_zip(zip_info, zip_file):
