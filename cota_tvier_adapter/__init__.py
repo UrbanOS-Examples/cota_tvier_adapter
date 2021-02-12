@@ -39,11 +39,13 @@ def healthcheck():
     return "Ok"
 
 def _stream_records_from_archive(archive_bytes, hour):
-    yield "[\n"
+    yield "["
+    delimiter = '\n'
     for rows in _process_zip_archive(archive_bytes, hour):
         for row in rows:
-            yield json.dumps(row) + ',\n'
-    yield '[]]' # Required due to trailing commas. Will be dead-lettered.
+            yield delimiter + json.dumps(row)
+            delimiter = ',\n' # Handles trailing commas
+    yield ']'
 
 @retry(tries=3, delay=10, backoff=10)
 def _process_zip_archive(zip_bytes, hour):

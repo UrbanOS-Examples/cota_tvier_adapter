@@ -150,4 +150,4 @@ def test_hour_not_found(fake_content_server_url):
     response = client.get(f"/api/v1/tvier?url={fixture_url}_{fixture_date}.gz&hour=66")
 
     assert response.status_code == 200
-    assert response.json() == [[]]
+    assert response.json() == []
