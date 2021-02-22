@@ -54,7 +54,7 @@ def _process_zip_archive(zip_bytes, hour):
     with zipfile.ZipFile(zip_bytes) as zip_file:
         members = zip_file.infolist()
         for member in members:
-            if member.filename.split('_')[2] == hour:
+            if hour == 'all' or member.filename.split('_')[2] == hour:
                 print(f"Extracting matching file: {member.filename}")
                 yield _extract_gzip_from_zip(member, zip_file)
 
