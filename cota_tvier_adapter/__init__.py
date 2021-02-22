@@ -6,6 +6,7 @@ import gzip
 import io
 import json
 import re
+import os
 import zipfile
 import zlib
 import pickle
@@ -22,6 +23,7 @@ app = FastAPI()
 
 search = re.compile(r"_obu_(.*?)\.")
 
+OUTPUT_FIELD_NAMES = ['sourceDevice', 'timestamp', 'messageType', 'messageBody']
 
 @app.get("/api/v1/tvier")
 def tvier(url: str, hour: str):
@@ -30,29 +32,29 @@ def tvier(url: str, hour: str):
     """
     response = requests.get(url)
     archive_bytes = io.BytesIO(response.content)
-    record_generator = _stream_records_from_archive(archive_bytes, hour)
-    return StreamingResponse(record_generator, media_type='application/json')
+    record_generator = _stream_records_from_file(archive_bytes, hour)
+    return StreamingResponse(record_generator, media_type='text/csv')
 
 
 @app.get("/api/v1/healthcheck")
 def healthcheck():
     return "Ok"
 
-def _stream_records_from_archive(archive_bytes, hour):
-    yield "["
-    delimiter = '\n'
-    for rows in _process_zip_archive(archive_bytes, hour):
-        for row in rows:
-            yield delimiter + json.dumps(row)
-            delimiter = ',\n' # Handles trailing commas
-    yield ']'
+
+def _stream_records_from_file(archive_bytes, hour):
+    for file_name in _process_zip_archive(archive_bytes, hour):
+        with open(file_name, 'r') as file:
+            for line in file:
+                yield line
+        os.remove(file_name)
+
 
 @retry(tries=3, delay=10, backoff=10)
 def _process_zip_archive(zip_bytes, hour):
     with zipfile.ZipFile(zip_bytes) as zip_file:
         members = zip_file.infolist()
         for member in members:
-            if member.filename.split('_')[2] == hour:
+            if hour == 'all' or member.filename.split('_')[2] == hour:
                 print(f"Extracting matching file: {member.filename}")
                 yield _extract_gzip_from_zip(member, zip_file)
 
@@ -64,10 +66,16 @@ def _extract_gzip_from_zip(zip_info, zip_file):
 
     try:
         unzipped = zlib.decompress(gzip_file.read(), wbits=16).decode("utf-8").splitlines()
-        extracted_records = _process_csv_file(unzipped, source_device)
-        return extracted_records
-    except:
-        logging.warning(f"Could not process file: {zip_info.filename}")
+        path = f"/tmp/{zip_info.filename}"
+        with open(path, "w") as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=OUTPUT_FIELD_NAMES)
+            for record in _process_csv_file(unzipped, source_device):
+                record['messageBody'] = json.dumps(record['messageBody'])
+                writer.writerow(record)
+
+        return path
+    except Exception as e:
+        logging.warning(f"Could not process file {zip_info.filename} due to: {e}")
         return None
 
 
