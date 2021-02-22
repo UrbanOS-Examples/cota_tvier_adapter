@@ -1,4 +1,6 @@
 import json
+from io import StringIO
+import csv
 
 import pytest
 from fastapi.testclient import TestClient
@@ -21,8 +23,17 @@ def test_high_level(fake_content_server_url):
 
     assert response.status_code == 200
     print(response.text[0:100])
+    f = StringIO(response.text)
+    reader = csv.DictReader(f, fieldnames=['sourceDevice', 'timestamp', 'messageType', 'messageBody'])
+    rows = []
+    for row in reader:
+        row['messageBody'] = json.loads(row['messageBody'])
+        rows.append(row)
+
     assert {
+        "sourceDevice": "2520203122717008050",
         "timestamp": "01/01/2021 03:06:59.190",
+        "messageType": "sentBSM",
         "messageBody": {
             "coreData": {
                 "msgCnt": 66,
@@ -138,10 +149,8 @@ def test_high_level(fake_content_server_url):
                     }
                 }
             }
-        },
-        "messageType": "sentBSM",
-        "sourceDevice": "2520203122717008050"
-    } in response.json()
+        }
+    } in rows
 
 
 def test_hour_not_found(fake_content_server_url):
@@ -150,4 +159,4 @@ def test_hour_not_found(fake_content_server_url):
     response = client.get(f"/api/v1/tvier?url={fixture_url}_{fixture_date}.gz&hour=66")
 
     assert response.status_code == 200
-    assert response.json() == []
+    assert response.text == ""
