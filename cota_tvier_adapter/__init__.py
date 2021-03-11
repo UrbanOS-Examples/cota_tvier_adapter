@@ -11,8 +11,8 @@ import zipfile
 import zlib
 import pickle
 import logging
-import requests
 import uvicorn
+import urllib.request
 
 from retry import retry
 from fastapi import FastAPI
@@ -30,10 +30,10 @@ def tvier(url: str, hour: str):
     """
     Downloads a gzip archive from the provided url and extracts data from the contained csv files
     """
-    response = requests.get(url)
-    archive_bytes = io.BytesIO(response.content)
-    record_generator = _stream_records_from_file(archive_bytes, hour)
-    return StreamingResponse(record_generator, media_type='text/csv')
+    with urllib.request.urlopen(url) as response:
+        archive_bytes = io.BytesIO(response.read())
+        record_generator = _stream_records_from_file(archive_bytes, hour)
+        return StreamingResponse(record_generator, media_type='text/csv')
 
 
 @app.get("/api/v1/healthcheck")
