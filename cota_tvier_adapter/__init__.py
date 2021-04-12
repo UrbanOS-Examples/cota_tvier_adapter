@@ -23,7 +23,8 @@ app = FastAPI()
 
 search = re.compile(r"_obu_(.*?)\.")
 
-OUTPUT_FIELD_NAMES = ['sourceDevice', 'timestamp', 'messageType', 'messageBody']
+OUTPUT_FIELD_NAMES = ["sourceDevice", "timestamp", "messageType", "messageBody"]
+
 
 @app.get("/api/v1/tvier")
 def tvier(url: str, hour: str):
@@ -33,7 +34,7 @@ def tvier(url: str, hour: str):
     with urllib.request.urlopen(url) as response:
         archive_bytes = io.BytesIO(response.read())
         record_generator = _stream_records_from_file(archive_bytes, hour)
-        return StreamingResponse(record_generator, media_type='text/csv')
+        return StreamingResponse(record_generator, media_type="text/csv")
 
 
 @app.get("/api/v1/healthcheck")
@@ -43,10 +44,11 @@ def healthcheck():
 
 def _stream_records_from_file(archive_bytes, hour):
     for file_name in _process_zip_archive(archive_bytes, hour):
-        with open(file_name, 'r') as file:
-            for line in file:
-                yield line
-        os.remove(file_name)
+        if file_name:
+            with open(file_name, "r") as file:
+                for line in file:
+                    yield line
+            os.remove(file_name)
 
 
 @retry(tries=3, delay=10, backoff=10)
@@ -54,7 +56,7 @@ def _process_zip_archive(zip_bytes, hour):
     with zipfile.ZipFile(zip_bytes) as zip_file:
         members = zip_file.infolist()
         for member in members:
-            if hour == 'all' or member.filename.split('_')[2] == hour:
+            if hour == "all" or member.filename.split("_")[3] == hour:
                 print(f"Extracting matching file: {member.filename}")
                 yield _extract_gzip_from_zip(member, zip_file)
 
@@ -65,12 +67,14 @@ def _extract_gzip_from_zip(zip_info, zip_file):
     gzip_file = zip_file.open(zip_info)
 
     try:
-        unzipped = zlib.decompress(gzip_file.read(), wbits=16).decode("utf-8").splitlines()
+        unzipped = (
+            zlib.decompress(gzip_file.read(), wbits=16).decode("utf-8").splitlines()
+        )
         path = f"/tmp/{zip_info.filename}"
         with open(path, "w") as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=OUTPUT_FIELD_NAMES)
             for record in _process_csv_file(unzipped, source_device):
-                record['messageBody'] = json.dumps(record['messageBody'])
+                record["messageBody"] = json.dumps(record["messageBody"])
                 writer.writerow(record)
 
         return path
@@ -82,6 +86,7 @@ def _extract_gzip_from_zip(zip_info, zip_file):
 def _process_gzip(gzip_file, source_device):
     with gzip.open(gzip_file, mode="rt") as csv_file:
         _process_csv_file(csv_file, source_device)
+
 
 def _process_csv_file(csv_file, source_device):
     data = csv.DictReader(
@@ -100,7 +105,7 @@ def _process_csv_file(csv_file, source_device):
 
     for record in data:
         converted_record = convert_row(record)
-        if converted_record != None: 
+        if converted_record != None:
             yield _add_source_device(converted_record, source_device)
 
 
