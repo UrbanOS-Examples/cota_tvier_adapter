@@ -28,14 +28,9 @@ def test_high_level(fake_content_server_url):
         f, fieldnames=["sourceDevice", "timestamp", "messageType", "messageBody"]
     )
     rows = []
-    test_row = ""
     for row in reader:
         row["messageBody"] = json.loads(row["messageBody"])
-        if row["messageType"] == "sentBSM":
-            test_row = row
         rows.append(row)
-
-    print(test_row)
 
     assert {
         "sourceDevice": "252020312271700794",
