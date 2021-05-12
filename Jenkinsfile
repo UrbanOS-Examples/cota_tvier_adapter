@@ -21,17 +21,23 @@ node('infrastructure') {
                 image = docker.build("scos/cota-tvier-adapter:${env.GIT_COMMIT_HASH}")
                 image.push()
             }
+        }
+
+        doStageUnlessRelease('Deploy to Dev') {
             deployTo(applicationName, 'dev', "--set image.tag=${env.GIT_COMMIT_HASH} --recreate-pods")
         }
 
-        doStageIfPromoted('Deploy Latest') {
+        doStageIfPromoted('Push :latest') {
             scos.withDockerRegistry {
                 image.push('latest')
             }
+        }
+
+        doStageIfPromoted('Deploy to Staging') {
             deployTo(applicationName, 'staging', "--set image.tag=latest")
         }
 
-        doStageIfRelease('Deploy Release') {
+        doStageIfRelease('Deploy to Production') {
             def releaseTag = env.BRANCH_NAME
 
             scos.withDockerRegistry {
