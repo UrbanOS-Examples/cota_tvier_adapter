@@ -5,7 +5,6 @@ metadata:
   labels:
 {{ include "cota-tvier-adapter.labels" . | indent 4 }}
 spec:
-  serviceAccountName: {{ .Chart.Name }}
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
