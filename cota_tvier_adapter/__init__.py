@@ -13,11 +13,14 @@ import pickle
 import logging
 import uvicorn
 import urllib.request
+import ssl
 
 from retry import retry
 from fastapi import FastAPI
 from starlette.responses import StreamingResponse
 from cota_tvier_adapter.record_converter import convert_row
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 app = FastAPI()
 
